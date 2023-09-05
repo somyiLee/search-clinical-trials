@@ -1,4 +1,5 @@
 import { Search, RecommendItem } from '../component/index';
+import { useMainContext } from '../hooks/useMainContext';
 
 const Main = () => {
   return (
