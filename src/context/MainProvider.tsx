@@ -1,11 +1,9 @@
 import { PropsWithChildren, createContext, useState } from 'react';
-import { axiosInstance } from '../apis/axios';
+import { axiosInstance } from '../shared/axios';
+import { filterItems } from '../shared/types';
 
 interface MainContextTypes {
-  filterItems: {
-    sickCd: string;
-    sickNm: string;
-  }[];
+  filterItems: filterItems[];
   getItems: (prams: string) => void;
 }
 
