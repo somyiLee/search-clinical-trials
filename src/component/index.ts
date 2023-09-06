@@ -1,2 +1,2 @@
-export * from './Search';
-export * from './RecommendItem';
+export * from './SearchResult';
+export * from './ResultItem';

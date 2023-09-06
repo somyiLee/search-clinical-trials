@@ -1,7 +1,7 @@
 import { filterItems } from './types';
 import { FETCHED_DATE, EXPIRE_TIME } from './constants';
 
-export const setCacheStorage = async (url: string, params: string, data: filterItems[]) => {
+export const setCacheStorage = async (url: string, queryStr: string, data: filterItems[]) => {
   const cacheStorage = await caches.open(url);
   const response = new Response(JSON.stringify(data));
 
@@ -16,7 +16,7 @@ export const setCacheStorage = async (url: string, params: string, data: filterI
     headers: newHeader,
   });
 
-  cacheStorage.put(params, newResponse);
+  cacheStorage.put(queryStr, newResponse);
 };
 
 export const checkCacheExpired = (cacheData: Response) => {
@@ -30,14 +30,14 @@ export const checkCacheExpired = (cacheData: Response) => {
   return today - fetchDate > EXPIRE_TIME;
 };
 
-export const getCachedData = async (url: string, params: string) => {
+export const getCachedData = async (url: string, queryStr: string) => {
   const cacheStorage = await caches.open(url);
-  const cachedData = await cacheStorage.match(params);
+  const cachedData = await cacheStorage.match(queryStr);
 
   if (cachedData) {
     if (!checkCacheExpired(cachedData)) return cachedData;
 
-    await cacheStorage.delete(params);
+    await cacheStorage.delete(queryStr);
   }
 
   return null;
