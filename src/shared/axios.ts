@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { BASE_URL } from './constants';
 
 export const axiosClient = () => {
   return axios.create({
-    baseURL: 'http://localhost:4000/sick',
+    baseURL: BASE_URL,
   });
 };
 
