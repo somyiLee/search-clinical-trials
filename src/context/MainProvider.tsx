@@ -9,8 +9,8 @@ import {
 
 interface MainContextTypes {
   filterItems: filterItems[];
-  getItems: (params: string) => void;
-  delayApi: (value: string) => void;
+  getItems: (queryStr: string) => void;
+  debouncingAPI: (value: string) => void;
 }
 
 export const MainContext = createContext<MainContextTypes | null>(null);
@@ -20,8 +20,8 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
   // eslint-disable-next-line no-undef
   let timeout: NodeJS.Timeout | null = null;
 
-  const getItems = async (params: string) => {
-    const responsedCache = await getCachedData(BASE_URL, params);
+  const getItems = async (queryStr: string) => {
+    const responsedCache = await getCachedData(BASE_URL, queryStr);
 
     if (responsedCache) {
       const cachedData = await responsedCache.json();
@@ -31,9 +31,9 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
 
     if (!responsedCache) {
       try {
-        const { data } = await axiosInstance.get(`?q=${params}`);
+        const { data } = await axiosInstance.get(`?q=${queryStr}`);
         setFilterItems(data);
-        setCacheStorage(BASE_URL, params, data);
+        setCacheStorage(BASE_URL, queryStr, data);
         console.info('calling api');
       } catch (error) {
         console.error(error);
@@ -45,18 +45,18 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
     setFilterItems([]);
   };
 
-  const delayApi = (value: string) => {
+  const debouncingAPI = (queryStr: string) => {
     if (timeout) {
       clearTimeout(timeout);
     }
 
-    if (value !== '') {
+    if (queryStr !== '') {
       timeout = setTimeout(() => {
-        getItems(value);
+        getItems(queryStr);
       }, 300);
     }
 
-    if (value === '') {
+    if (queryStr === '') {
       resetItems();
     }
 
@@ -68,7 +68,7 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
   };
 
   return (
-    <MainContext.Provider value={{ filterItems, getItems, delayApi }}>
+    <MainContext.Provider value={{ filterItems, getItems, debouncingAPI }}>
       {children}
     </MainContext.Provider>
   );
