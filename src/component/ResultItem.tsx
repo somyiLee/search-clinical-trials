@@ -1,13 +1,26 @@
-import { filterItems } from '../shared/types';
-export const RecommendItem = ({ sickNm }: filterItems) => {
+type Props = {
+  sickNm: string;
+  isFocus: boolean;
+};
+
+export const RecommendItem = ({ sickNm, isFocus }: Props) => {
   return (
     <>
-      <li className="flex items-center mb-3">
-        <button className="w-4 mr-3">
-          <img src="https://i.ibb.co/Rjf0LpY/search.png" alt="search" />
-        </button>
-        {sickNm}
-      </li>
+      {isFocus ? (
+        <li className="flex items-center p-3 bg-gray-200">
+          <button className="w-4 mr-3">
+            <img src="https://i.ibb.co/Rjf0LpY/search.png" alt="search" />
+          </button>
+          {sickNm}
+        </li>
+      ) : (
+        <li className="flex items-center p-3">
+          <button className="w-4 mr-3">
+            <img src="https://i.ibb.co/Rjf0LpY/search.png" alt="search" />
+          </button>
+          {sickNm}
+        </li>
+      )}
     </>
   );
 };
