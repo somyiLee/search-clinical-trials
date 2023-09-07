@@ -1,14 +1,8 @@
-import { PropsWithChildren, createContext, useState } from 'react';
-import {
-  axiosInstance,
-  filterItems,
-  getCachedData,
-  setCacheStorage,
-  BASE_URL,
-} from '../shared/index';
+import React, { PropsWithChildren, createContext, useState } from 'react';
+import { axiosInstance, filterItems, getCachedData, setCacheStorage, BASE_URL } from '../shared';
 
 interface MainContextTypes {
-  filterItems: filterItems[];
+  resultList: filterItems[];
   getItems: (queryStr: string) => void;
   debouncingAPI: (value: string) => void;
 }
@@ -16,7 +10,7 @@ interface MainContextTypes {
 export const MainContext = createContext<MainContextTypes | null>(null);
 
 export const MainProvider = ({ children }: PropsWithChildren) => {
-  const [filterItems, setFilterItems] = useState([]);
+  const [resultList, setResultList] = useState([]);
   // eslint-disable-next-line no-undef
   let timeout: NodeJS.Timeout | null = null;
 
@@ -25,15 +19,17 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
 
     if (responsedCache) {
       const cachedData = await responsedCache.json();
-      setFilterItems(cachedData);
-      console.log('cached data');
+      const slicedData = cachedData.slice(0, 6);
+      setResultList(slicedData);
     }
 
     if (!responsedCache) {
       try {
         const { data } = await axiosInstance.get(`?q=${queryStr}`);
-        setFilterItems(data);
-        setCacheStorage(BASE_URL, queryStr, data);
+        const slicedData = data.slice(0, 6);
+        setResultList(slicedData);
+        setCacheStorage(BASE_URL, queryStr, slicedData);
+
         console.info('calling api');
       } catch (error) {
         console.error(error);
@@ -41,34 +37,20 @@ export const MainProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const resetItems = () => {
-    setFilterItems([]);
-  };
-
   const debouncingAPI = (queryStr: string) => {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+    if (queryStr === '') setResultList([]);
+
+    if (timeout) clearTimeout(timeout);
 
     if (queryStr !== '') {
       timeout = setTimeout(() => {
         getItems(queryStr);
       }, 300);
     }
-
-    if (queryStr === '') {
-      resetItems();
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
   };
 
   return (
-    <MainContext.Provider value={{ filterItems, getItems, debouncingAPI }}>
+    <MainContext.Provider value={{ resultList, getItems, debouncingAPI }}>
       {children}
     </MainContext.Provider>
   );
